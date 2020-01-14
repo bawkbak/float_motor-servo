@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <arg name="config_file" default="velodyne_to_grid"/>
+    <arg name="pc_topic" default="/velodyne_points" doc="source of pointcloud topic"/>
+
+    <node pkg="lane_following" name="velodyne_to_grid" type="velodyne_to_grid" output="screen" clear_params="true" required="true">
+      <rosparam command="load" file="$(find lane_following)/config/$(arg config_file).yaml"/>
+      <remap from="velodyne_to_grid/velodyne_points" to="$(arg pc_topic)"/>
+    </node>
+</launch>

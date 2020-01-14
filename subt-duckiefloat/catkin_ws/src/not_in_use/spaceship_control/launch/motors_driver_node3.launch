@@ -1,0 +1,11 @@
+<launch>
+
+    <arg name="pkg_name" value="spaceship_control"/>
+    <arg name="node_name" default="motors_driver_node3"/>
+
+    <node pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen"/>
+
+    <!-- Subscriptions -->
+    <!-- "/spaceship/motors_cmd": spaceship_msgs/MotorsCmd. Command for the motors -->
+
+</launch>

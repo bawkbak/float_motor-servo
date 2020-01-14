@@ -1,0 +1,33 @@
+<launch>
+
+    <!-- joy -->
+    <include file="$(find joy_mapper)/launch/joy_node.launch"/>
+
+    <!-- joy_mapper -->
+    <include file="$(find joy_mapper)/launch/joy_mapper_node.launch"/>
+
+    <!-- run inverse_kinematics_node -->
+    <include file="$(find spaceship_control)/launch/inverse_kinematics_node.launch"/>
+
+    <!-- Motors Driver -->
+    <include file="$(find spaceship_control)/launch/motors_driver_node3.launch"/>
+
+    <!-- GPIO -->
+    <include file="$(find rpi_gpio_estop)/launch/rpi_gpio_estop.launch"/>
+
+    <!-- State Estimators -->
+    <include file="$(find state_estimators)/launch/state_estimator.launch"/>
+
+    <!-- IMU -->
+    <include file="$(find razor_imu_9dof)/launch/razor-pub.launch"/>
+
+    <!-- IR -->
+    <include file="$(find sensor)/launch/sensor.launch"/>
+    
+    <!-- height control -->
+    <node name="height_control" pkg="spaceship_control" type="height_control.py" /> 
+    
+    <!-- autonomous control -->
+    <node name="autonomous_control" pkg="spaceship_control" type="autonomous_control.py" />
+
+</launch>

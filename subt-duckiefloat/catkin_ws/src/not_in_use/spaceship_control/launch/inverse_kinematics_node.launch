@@ -1,0 +1,10 @@
+<launch>
+    <arg name="pkg_name" value="spaceship_control"/>
+    <arg name="node_name" default="inverse_kinematics_node"/>
+    <arg name="param_file_name" default="default" doc="Specify a param file."/>
+
+    <node name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen">
+      <rosparam command="load" file="$(find spaceship_control)/config/$(arg node_name)/$(arg param_file_name).yaml"/>
+    </node>
+
+</launch>

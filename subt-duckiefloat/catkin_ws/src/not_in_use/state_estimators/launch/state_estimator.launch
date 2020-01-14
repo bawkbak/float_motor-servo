@@ -1,0 +1,12 @@
+<launch>
+
+    <arg name="pkg_name" value="state_estimators"/>
+    <arg name="node_name" default="state_estimator_ukf_12d"/>
+
+    <node pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen"/>
+
+    <!-- Subscriptions -->
+    <!-- "/spaceship/motors_cmd": spaceship_msgs/MotorsCmd. Command for the motors -->
+
+</launch>
+

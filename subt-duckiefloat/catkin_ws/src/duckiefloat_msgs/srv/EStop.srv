@@ -1,0 +1,4 @@
+bool estop_cmd
+bool cancel_cmd
+---
+bool status

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <arg name="type" default="husky" doc="robot type"/>
+  <arg name="use_odom" default="true" doc="If using odom when autonomous, i.e., robot doesnot know
+                                           where it is but just chase the target"/>
+  <arg name="verbose" default="true" doc="whether to visualize the path marker"/>
+  <arg name="autonomous" default="false" doc="Flag to determine execution mode"/>
+  <arg name="left" default="true" doc="Follow in left or right mode"/>
+  <arg name="radius" default="2.0" doc="Searching radius"/>
+  <arg name="sim" default="false" doc="If simulation in gazebo"/>
+  <arg name="odometry_source_sim" default="sim_ground_node/fake_odom" doc="Odometry source in simulation"/>
+  <arg name="odometry_source_real" default="odometry/filtered" doc="Odometry source in real world"/>
+  <arg name="move" default="true" doc="Whether want the robot will move"/>
+  <arg name="timer_execution" default="5" doc="Autonomous mode planning timer"/>
+  <arg name="cml_verbose" default="false" doc=" Whether bash will output verbose target index of searching"/>
+  <arg name="pc_topic" default="/velodyne_points" doc="source of pointcloud topic"/>
+  
+  <group ns="$(arg type)">
+    <param name="use_odom" value="$(arg use_odom)"/>
+    <!-- If sim, using gazebo pose (ground truth) as odometry source -->
+    <node pkg="lane_following" type="sim_ground_node" name="sim_ground_node" if="$(arg sim)"/>
+  
+    <!-- Velpdyne points to occupancy grid -->
+    <include file="$(find lane_following)/launch/velodyne_to_grid.launch">
+      <arg name="pc_topic" value="$(arg pc_topic)"/>
+    </include>
+  
+    <!-- Path planning -->
+    <!-- Human control one -->
+    <group unless="$(arg autonomous)">
+      <node pkg="lane_following" type="pursuit_target_node" name="astar_node" output="screen">
+        <param name="verbose" value="$(arg verbose)"/>
+        <remap from="astar_node/occupancy_grid" to="velodyne_to_grid/local_map"/>
+      </node>
+    </group>
+    <!-- Wall following automatically -->
+    <group if="$(arg autonomous)">
+      <node pkg="lane_following" type="wall_following_node" name="astar_node" output="screen">
+        <param name="verbose" value="$(arg verbose)"/>
+        <param name="cml_verbose" value="$(arg cml_verbose)"/>
+        <param name="left" value="$(arg left)"/>
+        <param name="radius" value="$(arg radius)"/>
+        <param name="timer_execution" value="$(arg timer_execution)"/>
+        <remap from="astar_node/occupancy_grid" to="velodyne_to_grid/local_map"/>
+      </node>
+    </group>
+    <!-- Pure pursuit -->
+    <group if="$(arg move)">
+      <!-- In simulation -->
+      <group if="$(arg sim)">
+        <!-- Convert path to single point -->
+        <node pkg="control" type="pure_pursuit_point.py" name="path_to_pose" output="screen">
+          <remap from="planning_path" to="astar_node/planned_path"/>
+          <remap from="odometry/ground_truth" to="$(arg odometry_source_sim)"/>
+        </node>
+       <node pkg="lane_following" type="subt_pid.py" name="subt_pid_node" output="screen">
+          <!-- Input remapping -->
+          <remap from="odometry/ground_truth" to="$(arg odometry_source_sim)"/>
+          <!-- Output remapping -->
+          <remap from="subt_pid_node/cmd_vel" to="/husky_velocity_controller/cmd_vel"/>
+        </node>
+      </group>
+      <!-- In real world-->
+      <group unless="$(arg sim)">
+        <!-- Convert path to single point -->
+        <node pkg="control" type="pure_pursuit_point.py" name="path_to_pose" output="screen">
+          <remap from="planning_path" to="astar_node/planned_path"/>
+          <remap from="odometry/ground_truth" to="$(arg odometry_source_real)"/>
+        </node>
+        <node pkg="lane_following" type="subt_pid.py" name="subt_pid_node" output="screen">
+          <!-- Input remapping -->
+          <remap from="odometry/ground_truth" to="$(arg odometry_source_real)"/>
+          <!-- Output remapping -->
+          <remap from="subt_pid_node/cmd_vel" to="/husky_velocity_controller/cmd_vel"/>
+        </node>
+      </group>
+    </group>
+  </group>
+</launch>

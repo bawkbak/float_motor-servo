@@ -1,0 +1,8 @@
+<launch>
+
+    <arg name="pkg_name" value="rpi_gpio_estop"/>
+    <arg name="node_name" value="estop_node"/>
+
+    <node pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen"/>
+
+</launch>
