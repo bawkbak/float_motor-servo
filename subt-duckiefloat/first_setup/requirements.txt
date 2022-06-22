@@ -1,6 +1,6 @@
 setuptools==42.0.1
 scipy==1.2.2
-numpy==1.16.5
+numpy==1.22.0
 matplotlib==2.2.4
 subprocess32==3.5.4
 kiwisolver==1.1.0
